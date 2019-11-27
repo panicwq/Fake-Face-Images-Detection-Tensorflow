@@ -146,9 +146,9 @@ def ResNet(_X, isTraining):
     
     # ============ Classifier Learning============
     
-    x_shape = x.get_shape().as_list()#3维尺寸列表
+    x_shape = x.get_shape().as_list()
     dense1 = x_shape[1]*x_shape[2]*x_shape[3]
-    W = tf.get_variable("featW", [dense1, 128], initializer=tf.truncated_normal_initializer())#定义权重
+    W = tf.get_variable("featW", [dense1, 128], initializer=tf.truncated_normal_initializer())
     b = tf.get_variable("featB", [128], initializer=tf.truncated_normal_initializer())
     dense1 = tf.reshape(x, [-1, dense1])
     feat = tf.nn.softmax(tf.matmul(dense1, W) + b)
@@ -257,9 +257,6 @@ with tf.name_scope('Test_Accuracy'):
     correct_prediction3 = tf.equal(tf.argmax(testpred, 1), test_labels)
     accuracy3 = tf.reduce_mean(tf.cast(correct_prediction3, tf.float32))
 
-x = tf.placeholder(tf.float32, [None, 64, 64, 3])
-y = tf.placeholder(tf.float32, [None, 2])
-keep_prob = tf.placeholder(tf.float32)
 
 log_dir='/home/jsj/WQ/Fake-Face-Images-Detection-Tensorflow/logs'
 save_path='/home/jsj/WQ/Fake-Face-Images-Detection-Tensorflow/checkpoints'
@@ -272,16 +269,15 @@ init = tf.global_variables_initializer()
 with tf.Session() as sess:
     sess.run(init)
     test_total_batch = int(glen3/batch_size)
-    ckpt = tf.train.latest_checkpoint(save_path)# 找到存储变量值的位置
-    saver.restore(sess, ckpt)# 加载到当前环境中
+    ckpt = tf.train.latest_checkpoint(save_path)# 
+    saver.restore(sess, ckpt)
     print('finish loading model!')
     test_writer = tf.summary.FileWriter(log_dir + '/restore')
     testacc = []
     test_vis = []
     test_tis = []
-    for k in tqdm(range(800)):
+    for k in tqdm(range(test_total_batch)):
         summary,a3, test_vi, test_ti = sess.run([merge, accuracy3, tf.argmax(testpred, 1), test_labels])
-        #summary, test_accuracy,  = sess.run([merge, accuracy3],feed_dict={x: x_test_batch, y: y_test_batch,keep_prob: dropout_rate})
         testacc.append(a3)
         test_vis.append(test_vi)
         test_tis.append(test_ti)
